@@ -5,7 +5,6 @@
 require('dotenv').config();
 const Discord = require('discord.io');
 var logger = require('winston');
-var auth = require('./auth.json');
 var fs = require("fs"); //used to append content to file
 const file = `names${(d => [d.getMonth() + 1, d.getDate(), d.getFullYear() % 100].map(n => n.toString().padStart(2, '0')).join(''))(new Date())}.txt`;
 var testing = false; //whether the bot is in testing mode or not (able to add names outside of club)

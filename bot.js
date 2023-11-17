@@ -6,8 +6,9 @@ require('dotenv').config();
 const Discord = require('discord.io');
 var logger = require('winston');
 var testing = false; //whether the bot is in testing mode or not (able to add names outside of club)
-var admin = false; //whether the user is an admin or not
+var adminBool = false; //whether the user is an admin or not
 var options, attendees = [];
+var admins = [];
 const now = new Date();
 var start = 18 * 60;
 var end = 22 * 60;
@@ -26,18 +27,15 @@ bot.on("ready", () => {
 
 bot.on("message", function (user1, userID, channelID, message, evt) {
 	if (message.substring(0, 1) === "$") {
-		admin = false;
-		
+		adminBool = false;
 		var query = message.substring(1).split(" ");
 		var command = query[0] + query[1];
 		var uniqueid = query[1];
 		query = query.splice(1);
-		if (user1 === "smittywerbenjagermanjensen69" 
-				|| user1 === "jaxclayton" 
-				|| user1 === "bigninjachicken"
-				|| user1 === "undecidedtrout"
-				|| user1 === "kobuqu")
-			admin = true;
+		for (var i = 0; i < admins.length; i++) {
+			if (user1 === admins[i])
+				adminBool = true;
+		}	
 		switch(command) {
 			case "attend" + uniqueid: {
 				if (uniqueid === undefined) {
@@ -68,20 +66,23 @@ bot.on("message", function (user1, userID, channelID, message, evt) {
 				bot.sendMessage({
 					to: channelID,
 					message: "commands:\n$attend uniqueid: " +
-					"saves the uniqueid into a txt file\n" +
+					"appends the uniqueid to a message of all other uniqueids in attendance\n" +
 					"$help: displays this message\n" +
 					"$ping: displays latency in milliseconds\n"
 				});
 				break;
 			} case "helpAdmin" + uniqueid : {
-				if (admin) {
+				if (adminBool) {
 					bot.sendMessage({
 						to: channelID,
 						message: "Admin commands:\n" + 
-						"$changeDomain d: changes the current domain to d, must have '@' and '.edu' somewhere\n" +
+						"$changeDomain (d): changes the current domain to d, must have '@' and '.edu' somewhere\n" +
+						"changeAdmin [a]: changes the array of admins to a, a must be a comma-delimited list of names\n" +
 						"$helpAdmin: displays this message\n" +
 						"$stop: stops the bot, depending on how it was launched\n" +
-						"$test: changes whether the bot is in testing mode or not"
+						"$test: changes whether the bot is in testing mode or not - the only difference with testing mode right now is that the time check is ignored\n" +
+						"$changeTime (s) (e): changes the start and end times to s and e, respectively," +
+						"s and e must be the starting hour of the time you want in military time  (for example, instead of doing 6:00pm, you would do '18') and s must be less than e\n"
 					});
 				} else {
 					bot.sendMessage({
@@ -104,7 +105,7 @@ bot.on("message", function (user1, userID, channelID, message, evt) {
 				}, 100);
 				break;	
 			 } case 'stop' + uniqueid: {
-				if (admin) {
+				if (adminBool) {
 					bot.sendMessage({
 						to: channelID,	
 						message: "Warning: depending on how I was launched, this may not do anything. If I do not go offline after a minute, you need to contact my creator.\nBye!"
@@ -120,7 +121,7 @@ bot.on("message", function (user1, userID, channelID, message, evt) {
 				}
 				break;
 			} case 'test' + uniqueid: {
-				if (admin) {
+				if (adminBool) {
 					if(testing) {
 						testing = false;
 					} else {
@@ -138,7 +139,7 @@ bot.on("message", function (user1, userID, channelID, message, evt) {
 				}
 				break;
 			}  case 'changeDomain' + uniqueid: {
-				if (admin) {
+				if (adminBool) {
 					if (uniqueid === undefined || uniqueid.at(0) !== '@' || uniqueid.substring(uniqueid.length - 4, uniqueid.length) !== '.edu') {
 						bot.sendMessage({
 							to: channelID,
@@ -158,6 +159,32 @@ bot.on("message", function (user1, userID, channelID, message, evt) {
 					});
 				}
 				break;
+			} case 'changeAdmin' + uniqueid: {
+				if (uniqueid === undefined) {
+					bot.sendMessage({
+						to: channelID,
+						message: "No admins? D:"
+					});
+					break;
+				} else if (uniqueid.includes(",")) {
+					admins = uniqueid.split(",");
+					bot.sendMessage({
+					to: channelID,
+					message: "Admins: " + admins.join("\n ")
+					});
+				} else {
+					admins = [uniqueid];
+					bot.sendMessage({
+						to: channelID,
+						message: "Admins: " + admins.join("\n ")
+					});
+				}
+				break;
+			} case 'changeTime': {
+				bot.sendMessage({
+					to: channelID,
+					message: "not implemented yet sorry"
+				});
 			} default: {
 				bot.sendMessage({
 					to: channelID,	
@@ -165,6 +192,6 @@ bot.on("message", function (user1, userID, channelID, message, evt) {
 				});
 				break;
 			}
-			}
 		}
+	}
 });

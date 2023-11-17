@@ -6,7 +6,7 @@ require('dotenv').config();
 const Discord = require('discord.io');
 var logger = require('winston');
 var fs = require("fs"); //used to append content to file
-const file = `names${(d => [d.getMonth() + 1, d.getDate(), d.getFullYear() % 100].map(n => n.toString().padStart(2, '0')).join(''))(new Date())}.txt`;
+//const file = `names${(d => [d.getMonth() + 1, d.getDate(), d.getFullYear() % 100].map(n => n.toString().padStart(2, '0')).join(''))(new Date())}.txt`;
 var testing = false; //whether the bot is in testing mode or not (able to add names outside of club)
 var admin = false; //whether the user is an admin or not
 var options, attendees = [];
@@ -58,27 +58,27 @@ bot.on("message", function (user1, userID, channelID, message, evt) {
 				} else {
 					let con = uniqueid + "@miamioh.edu\n";
 					const content = `${con}`;
-					if (file === undefined) {
-						bot.sendMessage({
-							to: channelID,
-							message: "Please set a file name first!"
-						});
-						break;
-					}
-					fs.appendFile(file, content, err => {
-						if (err) {
-							bot.sendMessage({
-								to: channelID,
-								message: "We are verwy sowwy, but our uniqueid uploading monkeys have screwed up. Tell the admin to find out what is wrong with them."
-							});
-							console.log(err)
-							return;
-						}
-					})
-					attendees.push(uniqueid);
+					// if (file === undefined) {
+					// 	bot.sendMessage({
+					// 		to: channelID,
+					// 		message: "Please set a file name first!"
+					// 	});
+					// 	break;
+					// }
+					// fs.appendFile(file, content, err => {
+					// 	if (err) {
+					// 		bot.sendMessage({
+					// 			to: channelID,
+					// 			message: "We are verwy sowwy, but our uniqueid uploading monkeys have screwed up. Tell the admin to find out what is wrong with them."
+					// 		});
+					// 		console.log(err)
+					// 		return;
+					// 	}
+					// })
+					attendees.push(uniqueid + "@miamioh.edu");
 					bot.sendMessage({
 						to: channelID,
-						message: "Current attendees: " + attendees.join(", ")
+						message: "Current attendees: " + attendees.join("\n ")
 					});
 					break;
 				}
@@ -121,30 +121,32 @@ bot.on("message", function (user1, userID, channelID, message, evt) {
 				});
 				}, 100);
 				break;	
-			} case "changeFile" + query[0]: {
-				if (admin) { 
-					if (query[0] === undefined) {
-						bot.sendMessage({
-							to: channelID,	
-							message: "Put in a file name! the file's name right now is " + file
-						});
-					}
-					else {
-						bot.sendMessage({
-							to: channelID,	
-							message: "The file has been changed from " + file + " to " + query[0]
-						});
-						file = query[0];
-					}
+			 } 
+			//case "changeFile" + query[0]: {
+			// 	if (admin) { 
+			// 		if (query[0] === undefined) {
+			// 			bot.sendMessage({
+			// 				to: channelID,	
+			// 				message: "Put in a file name! the file's name right now is " + file
+			// 			});
+			// 		}
+			// 		else {
+			// 			bot.sendMessage({
+			// 				to: channelID,	
+			// 				message: "The file has been changed from " + file + " to " + query[0]
+			// 			});
+			// 			file = query[0];
+			// 		}
 					
-				} else {
-					bot.sendMessage({
-						to: channelID,
-						message: "You are not an admin!"
-					});
-				}
-				break;
-			} case 'stop' + uniqueid: {
+			// 	} else {
+			// 		bot.sendMessage({
+			// 			to: channelID,
+			// 			message: "You are not an admin!"
+			// 		});
+			// 	}
+			// 	break;
+			// } 
+			case 'stop' + uniqueid: {
 				if (admin) {
 					bot.sendMessage({
 						to: channelID,	
